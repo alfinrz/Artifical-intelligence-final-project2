@@ -13,6 +13,7 @@ import torch.optim as optim
 from metrics import *
 from ped_dataset import *
 
+
 class RunConfig:
     sequence_length = 20
     min_sequence_length = 10
