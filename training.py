@@ -38,14 +38,17 @@ def load_datasets():
     return datasets
 
 class ConstantVelocityModel(nn.Module):
-    def __init__(self):
+    def __init__(self, input_size, output_size):
         super(ConstantVelocityModel, self).__init__()
+        self.linear = nn.Linear(input_size, output_size)
 
     def forward(self, observed):
+        if observed.size(1) <2:
+            raise ValueError("Sequence length must be at leat 2")
         obs_rel = observed[:, 1:] - observed[:, :-1]
         deltas = obs_rel[:, -1].unsqueeze(1)
         y_pred_rel = deltas.repeat(1, 12, 1)
-        return y_pred_rel
+        return self.linear(y_pred_rel.view(y_pred_rel.size(0), -1))
 
 def train_cvm_model(model, train_loader, criterion, optimizer, num_epochs=10):
     model.train()
@@ -82,8 +85,11 @@ def main():
     train_dataset = datasets[0]
     train_loader = create_train_loader(train_dataset, batch_size=1)
 
+    #Define Input and output size
+    input_size = 2
+    output_size = 2
     # Initialize the CVM model, criterion, and optimizer
-    cvm_model = ConstantVelocityModel()
+    cvm_model = ConstantVelocityModel(input_size, output_size)
     criterion = nn.MSELoss()  # You may need to choose an appropriate loss function
     optimizer = optim.Adam(cvm_model.parameters(), lr=0.001)  # Adjust the learning rate as needed
 
@@ -91,3 +97,5 @@ def main():
     train_cvm_model(cvm_model, train_loader, criterion, optimizer, num_epochs=10)
 
     # Now you can use the trained model for evaluation or other tasks
+if __name__ == "__main__":
+    main()
