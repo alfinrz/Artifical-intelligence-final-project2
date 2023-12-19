@@ -1,7 +1,7 @@
-import torch # torch 1.0.0
+import torch
 
 
-def avg_disp(y_pred, y_true): # this function computes the average displacement error
+def avg_disp(y_pred, y_true):
     """ Average displacement error. """
     y_true, masks = y_true
 
@@ -15,7 +15,7 @@ def avg_disp(y_pred, y_true): # this function computes the average displacement 
     return avg_l2_dist.item()
 
 
-def final_disp(y_pred, y_true): # this function computes the final displacement error
+def final_disp(y_pred, y_true):
     """ Final displacement error """
     y_true, masks = y_true
 

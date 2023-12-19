@@ -1,7 +1,7 @@
-import json # this is a library that allows us to work with json files
+import json
 
 
-class DetectedObject:  # this is a class that contains the detected object
+class DetectedObject:
 
     def __init__(self, obj_id, position):
         self.id = obj_id
@@ -10,7 +10,7 @@ class DetectedObject:  # this is a class that contains the detected object
     def from_json(obj_json):
         return DetectedObject(obj_json['id'], obj_json['position'])
 
-class Detection: # this is a class that contains the detection
+class Detection:
 
     def __init__(self, timestamp, size, object_list):
         self.timestamp = timestamp
@@ -31,7 +31,7 @@ class Detection: # this is a class that contains the detection
     def __len__(self):
         return len(self.object_list)
 
-class Trajectory(): # this is a class that contains the trajectory
+class Trajectory():
 
     def __init__(self, obj_id, start_time, positions=None):
         self.obj_id = obj_id
@@ -44,7 +44,7 @@ class Trajectory(): # this is a class that contains the trajectory
     def __len__(self):
         return len(self.positions)
 
-class Sample(): # this is a class that contains the sample
+class Sample():
     def __init__(self, obj_id, start_time, positions=None):
         self.trajectory = Trajectory(obj_id, start_time, positions=positions)
     

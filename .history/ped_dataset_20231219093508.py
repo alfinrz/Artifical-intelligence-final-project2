@@ -1,4 +1,3 @@
-# importing libraries
 import os
 import sys
 import copy
@@ -12,7 +11,7 @@ from torch.utils.data import Dataset
 from dataset_utils import *
 
 
-class PedDataset(Dataset): # this is a class that contains the pedestrian dataset
+class PedDataset(Dataset):
     """
     Datset of pedestrian trajectories.
     """
@@ -31,7 +30,7 @@ class PedDataset(Dataset): # this is a class that contains the pedestrian datase
         if self.dataset_path is not None:
             self.initialize_dataset()
 
-    def initialize_dataset(self): # this function initializes the dataset
+    def initialize_dataset(self):
         data_path_expanded = os.path.join(self.dataset_path, 'data', '*.json')
         detection_paths = glob.glob(data_path_expanded)
         assert(len(detection_paths) > 0)
@@ -45,7 +44,7 @@ class PedDataset(Dataset): # this is a class that contains the pedestrian datase
     def __len__(self):
         return self.size
         
-    def _ordered_timestamp_detection_paths(self, detection_paths): # this function orders the timestamp detection paths
+    def _ordered_timestamp_detection_paths(self, detection_paths):
         ordered_detections = []
         for detection_path in detection_paths:
             detection_file = open(detection_path, 'r')
@@ -58,13 +57,13 @@ class PedDataset(Dataset): # this is a class that contains the pedestrian datase
         timestamps, new_detection_paths = map(list, zip(*ordered_detections))
         return timestamps, new_detection_paths
 
-    def _create_sample_sequences(self): # this function creates the sample sequences 
+    def _create_sample_sequences(self):
         detections = self._load_all_detections()
         ids_to_samples = self._create_samples(detections)
         self.samples = list(ids_to_samples.values())
         self.samples = self._slice_samples_by_sequence_length()
 
-    def _create_samples(self, detections): # this function creates the samples
+    def _create_samples(self, detections):
         ids_to_samples = dict()
 
         for detection in detections:
@@ -77,27 +76,27 @@ class PedDataset(Dataset): # this is a class that contains the pedestrian datase
                 sample.add_position(obj.position)
         return ids_to_samples
 
-    def _load_all_detections(self): # this function loads all the detections
+    def _load_all_detections(self):
         detections = []
         for detection_path in self.detection_paths:
             detection = self._load_detection(detection_path)
             detections.append(detection)
         return detections
 
-    def _load_detection(self, detection_path): # this function loads the detection
+    def _load_detection(self, detection_path):
         with  open(detection_path, 'r') as detection_file:
             detection_json = json.load(detection_file)
         detection = Detection.from_json(detection_json)
         return detection
 
-    def _slice_samples_by_sequence_length(self): # this function slices the samples by sequence length
+    def _slice_samples_by_sequence_length(self):
         expanded_samples = []
         for sample in self.samples:
             sliced_samples = sample.slice(self.sequence_length, self.min_sequence_length)
             expanded_samples.extend(sliced_samples)
         return expanded_samples
 
-    def __getitem__(self, index): # this function gets the item
+    def __getitem__(self, index):
         sample = copy.deepcopy(self.samples[index])
 
         mask = self._compute_label_mask(sample)[self.observed_history:]
@@ -112,12 +111,12 @@ class PedDataset(Dataset): # this is a class that contains the pedestrian datase
 
         return observed, [y_delta, mask]
 
-    def _compute_label_mask(self, sample): # this function computes the label mask
+    def _compute_label_mask(self, sample):
         mask = np.ones(self.sequence_length)
         mask[len(sample):] = 0.
         return mask
 
-    def _pad_sequence(self, sample): # this function pads the sequence
+    def _pad_sequence(self, sample):
         if len(sample) >= self.sequence_length:
             return
 
@@ -125,7 +124,7 @@ class PedDataset(Dataset): # this is a class that contains the pedestrian datase
         for i in range(padding_size):
             sample.add_position([0, 0])
 
-    def _set_name(self, dataset_path): # this function sets the name
+    def _set_name(self, dataset_path):
         info_path = os.path.join(dataset_path, 'dataset_info.json')
         dataset_info = json.load(open(info_path, 'r'))
         self.name = dataset_info['dataset_name']
